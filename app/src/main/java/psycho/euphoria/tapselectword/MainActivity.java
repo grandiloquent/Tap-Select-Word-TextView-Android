@@ -22,51 +22,36 @@ public class MainActivity extends Activity {
         setContentView(textView);
         mTextView = textView;
         final WordIterator wordIterator = new WordIterator();
-        mTextView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        final float x = event.getX();
-                        final float y = event.getY();
-                        if (x < 132 || x > 1080 - 132) {//
-                            return true;
-                        }
-                        // Remember finger down position, to be able to start selection from there
-                        int t = mTextView.getOffsetForPosition(x, y);
-                        long lastTouchOffsets = packRangeInLong(t, t);
-                        final int minOffset = unpackRangeStartFromLong(lastTouchOffsets);
-                        final int maxOffset = unpackRangeEndFromLong(lastTouchOffsets);
-                        wordIterator.setCharSequence(mTextView.getText().toString(), minOffset, maxOffset);
-                        int selectionStart, selectionEnd;
-                        selectionStart = wordIterator.getBeginning(minOffset);
-                        selectionEnd = wordIterator.getEnd(maxOffset);
-                        if (selectionStart == BreakIterator.DONE || selectionEnd == BreakIterator.DONE ||
-                                selectionStart == selectionEnd) {
-                            // Possible when the word iterator does not properly handle the text's language
-                            long range = getCharRange(minOffset);
-                            selectionStart = unpackRangeStartFromLong(range);
-                            selectionEnd = unpackRangeEndFromLong(range);
-                        }
-                        try {
-                            String s = mTextView.getText().subSequence(selectionStart, selectionEnd).toString().trim();
-                            if (s.length() > 0)
-                                Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        //Log.e("B5aOx2", String.format("onTouch, %s",  mTextView.getText().subSequence(selectionStart,selectionEnd)));
-                }
-//                    mOffset = mTextView.getOffsetForPosition(motionEvent.getX(), motionEvent.getY());
-//                    String s = findWordForRightHanded(mTextView.getText().toString(), mOffset);
-//                    if (s.length() > 0) {
-//                        Matcher matcher = mPattern.matcher(s);
-//                        if (matcher.find()) {
-//                            translate(matcher.group());
-//                        }
-//                    }
-                return false;
+        mTextView.setOnTouchListener((view, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    final float x = event.getX();
+                    final float y = event.getY();
+                    if (x < 132 || x > 1080 - 132) {//
+                        return true;
+                    }
+                    // Remember finger down position, to be able to start selection from there
+                    int t = mTextView.getOffsetForPosition(x, y);
+                    long lastTouchOffsets = packRangeInLong(t, t);
+                    final int minOffset = unpackRangeStartFromLong(lastTouchOffsets);
+                    final int maxOffset = unpackRangeEndFromLong(lastTouchOffsets);
+                    wordIterator.setCharSequence(mTextView.getText().toString(), minOffset, maxOffset);
+                    int selectionStart, selectionEnd;
+                    selectionStart = wordIterator.getBeginning(minOffset);
+                    selectionEnd = wordIterator.getEnd(maxOffset);
+                    if (selectionStart == BreakIterator.DONE || selectionEnd == BreakIterator.DONE ||
+                            selectionStart == selectionEnd) {
+                        // Possible when the word iterator does not properly handle the text's language
+                        long range = getCharRange(minOffset);
+                        selectionStart = unpackRangeStartFromLong(range);
+                        selectionEnd = unpackRangeEndFromLong(range);
+                    }
+                    String s = mTextView.getText().subSequence(selectionStart, selectionEnd).toString().trim();
+                    if (s.length() > 0)
+                        Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+
             }
+            return false;
         });
     }
 
